@@ -29,7 +29,7 @@ body {
 
 .total-income h2 {
     font-size: 16px;
-    color: var(--tg-theme-hint-color, #8E8E93);
+    color: var(--tg-theme-hint-color, #FFFFFF);
     margin-bottom: 5px;
 }
 
@@ -242,4 +242,88 @@ input::placeholder {
 
 .mb-20 {
     margin-bottom: 20px;
+}
+
+/* Settings */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.settings-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--tg-theme-button-color, #3390ec);
+}
+
+.settings-page {
+    animation: fadeIn 0.3s ease;
+}
+
+.tabs {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: var(--tg-theme-hint-color, #8E8E93);
+    border-bottom: 2px solid transparent;
+}
+
+.tab-button.active {
+    color: var(--tg-theme-button-color, #3390ec);
+    border-bottom-color: var(--tg-theme-button-color, #3390ec);
+}
+
+.settings-section {
+    margin-bottom: 30px;
+}
+
+.settings-section h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: var(--tg-theme-text-color, #FFFFFF);
+}
+
+.settings-section p {
+    margin-bottom: 5px;
+}
+
+.settings-section ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.settings-section ul li {
+    margin-bottom: 10px;
+}
+
+.settings-section a {
+    color: var(--tg-theme-link-color, #3390ec);
+    text-decoration: none;
+}
+
+.placeholder {
+    color: var(--tg-theme-hint-color, #8E8E93);
+    font-style: italic;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: var(--tg-theme-secondary-bg-color, #2C2C2E);
+    color: var(--tg-theme-text-color, #FFFFFF);
+    border: 1px solid var(--tg-theme-hint-color, #8E8E93);
+    border-radius: 8px;
 }

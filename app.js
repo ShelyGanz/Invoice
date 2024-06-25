@@ -35,11 +35,14 @@ function initApp() {
     function renderMainPage() {
         const invoices = getInvoices();
         const totalIncome = invoices.reduce((sum, invoice) => sum + parseFloat(invoice.amount), 0);
-
+    
         const appContainer = document.getElementById('app');
         appContainer.innerHTML = `
             <div class="container">
-                <h1 class="app-title">Invoice Manager <span class="user-name">${user.first_name}</span></h1>
+                <div class="header">
+                    <h1 class="app-title">Invoice Manager <span class="user-name">${user.first_name}</span></h1>
+                    <button class="settings-button" onclick="openSettings()">⚙️</button>
+                </div>
                 <div class="total-income">
                     <h2>Total Income</h2>
                     <div class="amount">$${totalIncome.toFixed(2)}</div>
@@ -48,9 +51,81 @@ function initApp() {
                 <button class="button view-all-btn" onclick="viewAllInvoices()">View All</button>
             </div>
         `;
-
+    
         Telegram.WebApp.BackButton.hide();
         setupMainButton('Create Invoice', createInvoice);
+    }
+
+    function openSettings() {
+        renderSettingsPage('business'); // Default to business tab
+    }
+
+    function renderSettingsPage(activeTab = 'business') {
+        const appContainer = document.getElementById('app');
+        appContainer.innerHTML = `
+            <div class="container settings-page">
+                <div class="tabs">
+                    <button class="tab-button ${activeTab === 'business' ? 'active' : ''}" onclick="renderSettingsPage('business')">Business</button>
+                    <button class="tab-button ${activeTab === 'general' ? 'active' : ''}" onclick="renderSettingsPage('general')">General</button>
+                </div>
+                <div class="tab-content">
+                    ${activeTab === 'business' ? renderBusinessSettings() : renderGeneralSettings()}
+                </div>
+            </div>
+        `;
+    
+        Telegram.WebApp.BackButton.show();
+        Telegram.WebApp.BackButton.onClick(renderMainPage);
+        hideMainButton();
+    }
+
+    function renderBusinessSettings() {
+        return `
+            <div class="settings-section">
+                <h3>Business Information</h3>
+                <p>Business Name: Your Business Name</p>
+                <p>Country: Your Country</p>
+                <p>Default Currency: USD</p>
+                <button class="button" onclick="editBusinessInfo()">Edit business info</button>
+            </div>
+            <div class="settings-section">
+                <h3>Subscription</h3>
+                <p class="placeholder">Premium placeholder</p>
+            </div>
+            <div class="settings-section">
+                <h3>Sales</h3>
+                <ul>
+                    <li><a href="#" onclick="openCustomers()">Customers</a></li>
+                    <li><a href="#" onclick="openProductsServices()">Products and services</a></li>
+                    <li><a href="#" onclick="openSalesTaxes()">Sales taxes</a></li>
+                </ul>
+            </div>
+        `;
+    }
+
+    function renderGeneralSettings() {
+        return `
+            <div class="settings-section">
+                <h3>Language</h3>
+                <select id="language-select">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                </select>
+            </div>
+            <div class="settings-section">
+                <h3>Default Currency</h3>
+                <select id="currency-select">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                </select>
+            </div>
+            <div class="settings-section">
+                <h3>Support</h3>
+                <button class="button" onclick="contactSupport()">Contact Support</button>
+            </div>
+        `;
     }
 
     function renderInvoiceList(invoices) {
@@ -213,4 +288,29 @@ function deleteInvoice(id) {
 function downloadPDF(id) {
     console.log(`Download PDF for invoice ${id}`);
     // Implement PDF download functionality
+}
+
+function editBusinessInfo() {
+    console.log("Edit business info");
+    // Implement edit business info functionality
+}
+
+function openCustomers() {
+    console.log("Open customers");
+    // Implement open customers functionality
+}
+
+function openProductsServices() {
+    console.log("Open products and services");
+    // Implement open products and services functionality
+}
+
+function openSalesTaxes() {
+    console.log("Open sales taxes");
+    // Implement open sales taxes functionality
+}
+
+function contactSupport() {
+    console.log("Contact support");
+    // Implement contact support functionality
 }
