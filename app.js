@@ -56,7 +56,6 @@ function renderMainPage() {
         </div>
     `;
 
-    document.getElementById('settingsButton').addEventListener('click', openSettings);
     Telegram.WebApp.BackButton.hide();
     clearMainButton();
     setupMainButton('Create Invoice', createInvoice);
