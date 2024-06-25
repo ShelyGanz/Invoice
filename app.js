@@ -45,7 +45,7 @@ function renderMainPage() {
         <div class="container">
             <div class="header">
                 <h1 class="app-title">Invoice Manager</h1>
-                <button class="settings-button" id="settingsButton">⚙️</button>
+                <button class="settings-button" id="settingsButton" onclick="openSettings()">⚙️</button>
             </div>
             <p class="user-name">Welcome, ${user.first_name}</p>
             <div class="total-income">
