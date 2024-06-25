@@ -6,63 +6,31 @@ body {
     color: var(--tg-theme-text-color, #FFFFFF);
 }
 
-/* Styles for the error page */
-.error-page {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    text-align: center;
-}
-
-.error-container {
-    background-color: var(--tg-theme-secondary-bg-color, #2C2C2E);
-    border-radius: 10px;
-    padding: 20px;
-    max-width: 80%;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.telegram-icon {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 20px;
-}
-
-/* Styles for the main app */
 .container {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
 }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.app-title {
+    font-size: 24px;
     margin-bottom: 20px;
+    text-align: center;
 }
 
-.user-info {
-    display: flex;
-    align-items: center;
-}
-
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
+.user-name {
+    font-weight: normal;
 }
 
 .total-income {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 .total-income h2 {
-    font-size: 18px;
-    margin-bottom: 10px;
+    font-size: 16px;
+    color: var(--tg-theme-hint-color, #8E8E93);
+    margin-bottom: 5px;
 }
 
 .amount {
@@ -70,21 +38,13 @@ body {
     font-weight: bold;
 }
 
-.button {
-    background-color: var(--tg-theme-button-color, #3390ec);
-    color: var(--tg-theme-button-text-color, #ffffff);
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 10px;
+h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
 }
 
-.invoice-list h3 {
-    margin-top: 20px;
-    margin-bottom: 10px;
+.invoice-list {
+    margin-bottom: 20px;
 }
 
 .invoice-item {
@@ -101,21 +61,24 @@ body {
     opacity: 0.8;
 }
 
-h1 {
-    color: var(--tg-theme-text-color, #FFFFFF);
-    margin-bottom: 20px;
-}
-
-h2 {
-    color: var(--tg-theme-hint-color, #AAAAAA);
-    font-size: 24px;
-    margin-bottom: 15px;
-}
-
-p {
+.button {
+    background-color: var(--tg-theme-button-color, #3390ec);
+    color: var(--tg-theme-button-text-color, #ffffff);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
     font-size: 16px;
-    line-height: 1.5;
-    margin-bottom: 10px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.view-all-btn {
+    background-color: var(--tg-theme-button-color, #3390ec);
+}
+
+.create-invoice-btn {
+    background-color: var(--tg-theme-button-color, #3390ec);
 }
 
 /* Form styles */
@@ -128,31 +91,52 @@ form {
 
 input, select {
     background-color: var(--tg-theme-secondary-bg-color, #2C2C2E);
-    border: 1px solid var(--tg-theme-hint-color, #AAAAAA);
+    border: 1px solid var(--tg-theme-hint-color, #8E8E93);
     border-radius: 8px;
     color: var(--tg-theme-text-color, #FFFFFF);
     font-size: 16px;
-    padding: 10px;
+    padding: 12px;
     width: 100%;
 }
 
 input::placeholder {
-    color: var(--tg-theme-hint-color, #AAAAAA);
+    color: var(--tg-theme-hint-color, #8E8E93);
 }
 
-/* Specific button styles */
-.view-all-btn {
-    background-color: var(--tg-theme-button-color, #3390ec);
+/* Error page styles */
+.error-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
 }
 
-.create-invoice-btn {
-    background-color: var(--tg-theme-button-color, #4CAF50);
+.error-container {
+    background-color: var(--tg-theme-secondary-bg-color, #2C2C2E);
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 80%;
+}
+
+.telegram-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 20px;
 }
 
 /* Responsive design */
 @media (max-width: 600px) {
     .container {
         padding: 15px;
+    }
+
+    .app-title {
+        font-size: 20px;
+    }
+
+    .amount {
+        font-size: 32px;
     }
 
     .invoice-item {
@@ -163,4 +147,84 @@ input::placeholder {
     .invoice-item span {
         margin-bottom: 5px;
     }
+}
+
+/* Additional styles for better UI */
+.invoice-item {
+    transition: background-color 0.3s ease;
+}
+
+.invoice-item:active {
+    background-color: var(--tg-theme-active-bg-color, #3A3A3C);
+}
+
+.button {
+    transition: opacity 0.3s ease;
+}
+
+.button:active {
+    opacity: 0.7;
+}
+
+/* Styles for invoice details page */
+.invoice-details h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.invoice-details p {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.invoice-details .label {
+    color: var(--tg-theme-hint-color, #8E8E93);
+    margin-right: 5px;
+}
+
+/* Styles for "No invoices yet" message */
+.no-invoices {
+    text-align: center;
+    color: var(--tg-theme-hint-color, #8E8E93);
+    font-style: italic;
+    margin: 20px 0;
+}
+
+/* Improve form layout */
+form label {
+    color: var(--tg-theme-hint-color, #8E8E93);
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+form input, form select {
+    margin-bottom: 15px;
+}
+
+/* Add some animation for smoother transitions */
+.container {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Style for success messages */
+.success-message {
+    background-color: var(--tg-theme-secondary-bg-color, #2C2C2E);
+    border-left: 4px solid #4CAF50;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+/* Style for error messages */
+.error-message {
+    background-color: var(--tg-theme-secondary-bg-color, #2C2C2E);
+    border-left: 4px solid #F44336;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
 }

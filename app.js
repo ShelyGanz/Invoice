@@ -32,26 +32,20 @@ function initApp() {
     const queryId = Telegram.WebApp.initDataUnsafe.query_id;
 
     // Main app logic
-    function renderApp() {
+    function renderMainPage() {
         const invoices = getInvoices();
         const totalIncome = invoices.reduce((sum, invoice) => sum + parseFloat(invoice.amount), 0);
 
         const appContainer = document.getElementById('app');
         appContainer.innerHTML = `
             <div class="container">
-                <div class="header">
-                    <h1>Invoice Manager</h1>
-                    <div class="user-info">
-                        <img src="${user.photo_url || 'assets/default-avatar.png'}" alt="${user.first_name}" class="user-avatar">
-                        <span>${user.first_name}</span>
-                    </div>
-                </div>
+                <h1 class="app-title">Invoice Manager <span class="user-name">${user.first_name}</span></h1>
                 <div class="total-income">
                     <h2>Total Income</h2>
                     <div class="amount">$${totalIncome.toFixed(2)}</div>
                 </div>
+                <h3>Latest Invoices</h3>
                 <div class="invoice-list">
-                    <h3>Latest Invoices</h3>
                     ${renderInvoiceList(invoices.slice(-3))}
                 </div>
                 <button class="button view-all-btn" onclick="viewAllInvoices()">View All</button>
@@ -59,10 +53,14 @@ function initApp() {
             </div>
         `;
 
+        Telegram.WebApp.BackButton.hide();
         setupMainButton('Create Invoice', createInvoice);
     }
 
     function renderInvoiceList(invoices) {
+        if (invoices.length === 0) {
+            return '<p>No invoices yet.</p>';
+        }
         return invoices.map(invoice => `
             <div class="invoice-item" onclick="viewInvoice(${invoice.id})">
                 <span>Invoice #${invoice.id}</span>
@@ -73,10 +71,10 @@ function initApp() {
     }
 
     function createInvoice() {
-        renderCreateInvoice();
+        renderCreateInvoicePage();
     }
 
-    function renderCreateInvoice() {
+    function renderCreateInvoicePage() {
         const appContainer = document.getElementById('app');
         appContainer.innerHTML = `
             <div class="container">
@@ -91,10 +89,11 @@ function initApp() {
                         <option value="Paid">Paid</option>
                     </select>
                 </form>
-                <button class="button" onclick="renderApp()">Cancel</button>
             </div>
         `;
 
+        Telegram.WebApp.BackButton.show();
+        Telegram.WebApp.BackButton.onClick(renderMainPage);
         setupMainButton('Save Invoice', saveInvoice);
     }
 
@@ -114,7 +113,7 @@ function initApp() {
             };
             addInvoiceToStorage(newInvoice);
             Telegram.WebApp.showAlert('Invoice created successfully!');
-            renderApp();
+            renderMainPage();
         } else {
             Telegram.WebApp.showAlert('Please fill in all fields.');
         }
@@ -129,10 +128,11 @@ function initApp() {
                 <div class="invoice-list">
                     ${renderInvoiceList(invoices)}
                 </div>
-                <button class="button" onclick="renderApp()">Back to Main</button>
             </div>
         `;
 
+        Telegram.WebApp.BackButton.show();
+        Telegram.WebApp.BackButton.onClick(renderMainPage);
         hideMainButton();
     }
 
@@ -156,10 +156,11 @@ function initApp() {
                 <button class="button" onclick="editInvoice(${invoice.id})">Edit</button>
                 <button class="button" onclick="deleteInvoice(${invoice.id})">Delete</button>
                 <button class="button" onclick="downloadPDF(${invoice.id})">Download PDF</button>
-                <button class="button" onclick="renderApp()">Back to Main</button>
             </div>
         `;
 
+        Telegram.WebApp.BackButton.show();
+        Telegram.WebApp.BackButton.onClick(renderMainPage);
         hideMainButton();
     }
 
@@ -185,7 +186,7 @@ function initApp() {
     }
 
     // Initial render
-    renderApp();
+    renderMainPage();
 }
 
 // Placeholder functions for future implementation
