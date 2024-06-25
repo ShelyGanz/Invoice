@@ -59,6 +59,7 @@ function renderMainPage() {
 
     document.getElementById('settingsButton').addEventListener('click', openSettings);
     Telegram.WebApp.BackButton.hide();
+    clearMainButton();
     setupMainButton('Create Invoice', createInvoice);
     initSearch();
 }
@@ -276,7 +277,10 @@ function editBusinessInfo() {
     `;
 
     Telegram.WebApp.BackButton.show();
-    Telegram.WebApp.BackButton.onClick(() => renderSettingsPage('business'));
+    Telegram.WebApp.BackButton.onClick(() => {
+        clearMainButton();
+        renderSettingsPage('business');
+    });
 
     // Set up the MainButton for saving
     setupMainButton('Save', saveBusinessInfoHandler);
@@ -314,7 +318,10 @@ function editAddress() {
     `;
 
     Telegram.WebApp.BackButton.show();
-    Telegram.WebApp.BackButton.onClick(editBusinessInfo);
+    Telegram.WebApp.BackButton.onClick(() => {
+        clearMainButton();
+        editBusinessInfo();
+    });
 
     // Set up the MainButton for saving
     setupMainButton('Save', saveAddressHandler);
@@ -353,7 +360,10 @@ function editContact() {
     `;
 
     Telegram.WebApp.BackButton.show();
-    Telegram.WebApp.BackButton.onClick(editBusinessInfo);
+    Telegram.WebApp.BackButton.onClick(() => {
+        clearMainButton();
+        editBusinessInfo();
+    });
 
     // Set up the MainButton for saving
     setupMainButton('Save', saveContactHandler);
@@ -399,9 +409,15 @@ function addInvoiceToStorage(invoice) {
 }
 
 function setupMainButton(text, onClick) {
+    clearMainButton()
     Telegram.WebApp.MainButton.setText(text);
     Telegram.WebApp.MainButton.onClick(onClick);
     Telegram.WebApp.MainButton.show();
+}
+
+function clearMainButton() {
+    Telegram.WebApp.MainButton.offClick(Telegram.WebApp.MainButton.onClick);
+    Telegram.WebApp.MainButton.hide();
 }
 
 function hideMainButton() {
