@@ -208,12 +208,14 @@ function renderSettingsPage(activeTab = 'business') {
 }
 
 function renderBusinessSettings() {
+    const businessInfo = getBusinessInfo();
     return `
         <div class="settings-section">
             <h3>Business Information</h3>
-            <p>Business Name: Your Business Name</p>
-            <p>Country: Your Country</p>
-            <p>Default Currency: USD</p>
+            <p>Business Name: ${businessInfo.name}</p>
+            <p>Additional Info: ${businessInfo.additionalInfo || 'Not provided'}</p>
+            <p>Address: ${businessInfo.address ? 'Provided' : 'Not provided'}</p>
+            <p>Contact: ${businessInfo.contact ? 'Provided' : 'Not provided'}</p>
             <button class="button" onclick="editBusinessInfo()">Edit business info</button>
         </div>
         <div class="settings-section">
@@ -256,6 +258,132 @@ function renderGeneralSettings() {
     `;
 }
 
+function editBusinessInfo() {
+    const businessInfo = getBusinessInfo();
+    const appContainer = document.getElementById('app');
+    appContainer.innerHTML = `
+        <div class="container">
+            <h2>Edit Business Information</h2>
+            <p>This business info will be shown on all existing and future invoices and estimates.</p>
+            <form id="edit-business-info-form">
+                <label for="business-name">Business Name</label>
+                <input type="text" id="business-name" name="business-name" maxlength="50" value="${businessInfo.name}" required>
+                
+                <label for="additional-info">Additional Info (optional)</label>
+                <textarea id="additional-info" name="additional-info">${businessInfo.additionalInfo || ''}</textarea>
+                
+                <button type="button" class="button" onclick="editAddress()">Address</button>
+                <button type="button" class="button" onclick="editContact()">Contact</button>
+                
+                <button type="submit" class="button">Save Business Info</button>
+            </form>
+        </div>
+    `;
+
+    Telegram.WebApp.BackButton.show();
+    Telegram.WebApp.BackButton.onClick(() => renderSettingsPage('business'));
+
+    document.getElementById('edit-business-info-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const updatedInfo = {
+            name: formData.get('business-name'),
+            additionalInfo: formData.get('additional-info'),
+            address: businessInfo.address,
+            contact: businessInfo.contact
+        };
+        saveBusinessInfo(updatedInfo);
+        Telegram.WebApp.showAlert('Business information updated successfully!');
+        renderSettingsPage('business');
+    });
+}
+
+function editAddress() {
+    const businessInfo = getBusinessInfo();
+    const appContainer = document.getElementById('app');
+    appContainer.innerHTML = `
+        <div class="container">
+            <h2>Edit Address</h2>
+            <form id="edit-address-form">
+                <input type="text" id="street" name="street" placeholder="Street" value="${businessInfo.address?.street || ''}" required>
+                <input type="text" id="city" name="city" placeholder="City" value="${businessInfo.address?.city || ''}" required>
+                <input type="text" id="state" name="state" placeholder="State" value="${businessInfo.address?.state || ''}" required>
+                <input type="text" id="zip" name="zip" placeholder="ZIP Code" value="${businessInfo.address?.zip || ''}" required>
+                <input type="text" id="country" name="country" placeholder="Country" value="${businessInfo.address?.country || ''}" required>
+                <button type="submit" class="button">Save Address</button>
+            </form>
+        </div>
+    `;
+
+    Telegram.WebApp.BackButton.show();
+    Telegram.WebApp.BackButton.onClick(editBusinessInfo);
+
+    document.getElementById('edit-address-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const updatedAddress = {
+            street: formData.get('street'),
+            city: formData.get('city'),
+            state: formData.get('state'),
+            zip: formData.get('zip'),
+            country: formData.get('country')
+        };
+        const businessInfo = getBusinessInfo();
+        businessInfo.address = updatedAddress;
+        saveBusinessInfo(businessInfo);
+        Telegram.WebApp.showAlert('Address updated successfully!');
+        editBusinessInfo();
+    });
+}
+
+function editContact() {
+    const businessInfo = getBusinessInfo();
+    const appContainer = document.getElementById('app');
+    appContainer.innerHTML = `
+        <div class="container">
+            <h2>Edit Contact</h2>
+            <form id="edit-contact-form">
+                <input type="email" id="email" name="email" placeholder="Email" value="${businessInfo.contact?.email || ''}" required>
+                <input type="tel" id="phone" name="phone" placeholder="Phone" value="${businessInfo.contact?.phone || ''}" required>
+                <input type="text" id="website" name="website" placeholder="Website" value="${businessInfo.contact?.website || ''}">
+                <button type="submit" class="button">Save Contact</button>
+            </form>
+        </div>
+    `;
+
+    Telegram.WebApp.BackButton.show();
+    Telegram.WebApp.BackButton.onClick(editBusinessInfo);
+
+    document.getElementById('edit-contact-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const updatedContact = {
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            website: formData.get('website')
+        };
+        const businessInfo = getBusinessInfo();
+        businessInfo.contact = updatedContact;
+        saveBusinessInfo(businessInfo);
+        Telegram.WebApp.showAlert('Contact information updated successfully!');
+        editBusinessInfo();
+    });
+}
+
+function getBusinessInfo() {
+    const info = localStorage.getItem('businessInfo');
+    return info ? JSON.parse(info) : {
+        name: user.first_name, // Default to user's first name from Telegram data
+        additionalInfo: '',
+        address: null,
+        contact: null
+    };
+}
+
+function saveBusinessInfo(info) {
+    localStorage.setItem('businessInfo', JSON.stringify(info));
+}
+
 function getInvoices() {
     const invoices = localStorage.getItem('invoices');
     return invoices ? JSON.parse(invoices) : [];
@@ -279,37 +407,40 @@ function hideMainButton() {
 
 function editInvoice(id) {
     console.log(`Edit invoice ${id}`);
+    // Implement edit functionality
 }
 
 function deleteInvoice(id) {
     confirmAction('Are you sure you want to delete this invoice?', () => {
         console.log(`Deleting invoice ${id}`);
+        // Implement actual delete functionality here
         renderMainPage();
     });
 }
 
 function downloadPDF(id) {
     console.log(`Download PDF for invoice ${id}`);
-}
-
-function editBusinessInfo() {
-    console.log("Edit business info");
+    // Implement PDF download functionality
 }
 
 function openCustomers() {
     console.log("Open customers");
+    // Implement open customers functionality
 }
 
 function openProductsServices() {
     console.log("Open products and services");
+    // Implement open products and services functionality
 }
 
 function openSalesTaxes() {
     console.log("Open sales taxes");
+    // Implement open sales taxes functionality
 }
 
 function contactSupport() {
     console.log("Contact support");
+    // Implement contact support functionality
 }
 
 function formatCurrency(amount) {
@@ -318,10 +449,12 @@ function formatCurrency(amount) {
 
 function updateLanguage(language) {
     console.log(`Updating language to ${language}`);
+    // Implement language change functionality
 }
 
 function updateCurrency(currency) {
     console.log(`Updating currency to ${currency}`);
+    // Implement currency change functionality
 }
 
 document.addEventListener('change', function(event) {
@@ -404,6 +537,7 @@ function initSearch() {
     document.querySelector('.header').appendChild(searchInput);
 }
 
+// Make sure these functions are available in the global scope
 window.openSettings = openSettings;
 window.viewAllInvoices = viewAllInvoices;
 window.createInvoice = createInvoice;
@@ -416,5 +550,8 @@ window.openProductsServices = openProductsServices;
 window.openSalesTaxes = openSalesTaxes;
 window.contactSupport = contactSupport;
 window.renderSettingsPage = renderSettingsPage;
+window.editAddress = editAddress;
+window.editContact = editContact;
 
+// Initialize the app
 initApp();
