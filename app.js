@@ -1,3 +1,7 @@
+// Global variables
+let user;
+let queryId;
+
 // Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Telegram Mini App
@@ -27,299 +31,379 @@ function renderErrorPage() {
 }
 
 function initApp() {
-    // User authorization
-    const user = Telegram.WebApp.initDataUnsafe.user;
-    const queryId = Telegram.WebApp.initDataUnsafe.query_id;
-
-    // Main app logic
-    function renderMainPage() {
-        const invoices = getInvoices();
-        const totalIncome = invoices.reduce((sum, invoice) => sum + parseFloat(invoice.amount), 0);
-
-        const appContainer = document.getElementById('app');
-        appContainer.innerHTML = `
-            <div class="container">
-                <div class="header">
-                    <h1 class="app-title">Invoice Manager</h1>
-                    <button class="settings-button" id="settingsButton">⚙️</button>
-                </div>
-                <p class="user-name">Welcome, ${user.first_name}</p>
-                <div class="total-income">
-                    <h2>Total Income</h2>
-                    <div class="amount">$${totalIncome.toFixed(2)}</div>
-                </div>
-                ${renderInvoiceList(invoices.slice(-3))}
-                <button class="button view-all-btn" onclick="viewAllInvoices()">View All</button>
-            </div>
-        `;
-
-        // Add event listener to the settings button
-        document.getElementById('settingsButton').addEventListener('click', openSettings);
-
-        Telegram.WebApp.BackButton.hide();
-        setupMainButton('Create Invoice', createInvoice);
-    }
-
-    function renderInvoiceList(invoices) {
-        return `
-            <div class="recent-invoices-block">
-                <h3>RECENT INVOICES</h3>
-                <div class="recent-invoices ${invoices.length === 0 ? 'empty' : ''}">
-                    ${invoices.length === 0 ? `
-                        <div class="empty-state">
-                            <div class="icon">⇄</div>
-                            <p>No recent invoices</p>
-                            <a href="#" onclick="createInvoice(); return false;">Create an Invoice</a>
-                        </div>
-                    ` : renderInvoices(invoices)}
-                </div>
-            </div>
-        `;
-    }
-
-    function renderInvoices(invoices) {
-        return invoices.map(invoice => `
-            <div class="invoice-item" onclick="viewInvoice(${invoice.id})">
-                <span>Invoice #${invoice.id}</span>
-                <span>$${parseFloat(invoice.amount).toFixed(2)}</span>
-                <span>${invoice.status}</span>
-            </div>
-        `).join('');
-    }
-
-    function createInvoice() {
-        renderCreateInvoicePage();
-    }
-
-    function renderCreateInvoicePage() {
-        const appContainer = document.getElementById('app');
-        appContainer.innerHTML = `
-            <div class="container">
-                <h2>Create Invoice</h2>
-                <form id="create-invoice-form">
-                    <input type="number" id="invoice-amount" placeholder="Amount" required step="0.01">
-                    <input type="text" id="invoice-description" placeholder="Description" required>
-                    <input type="date" id="invoice-date" required>
-                    <select id="invoice-status">
-                        <option value="Draft">Draft</option>
-                        <option value="Sent">Sent</option>
-                        <option value="Paid">Paid</option>
-                    </select>
-                </form>
-            </div>
-        `;
-
-        Telegram.WebApp.BackButton.show();
-        Telegram.WebApp.BackButton.onClick(renderMainPage);
-        setupMainButton('Save Invoice', saveInvoice);
-    }
-
-    function saveInvoice() {
-        const amount = document.getElementById('invoice-amount').value;
-        const description = document.getElementById('invoice-description').value;
-        const date = document.getElementById('invoice-date').value;
-        const status = document.getElementById('invoice-status').value;
-        
-        if (amount && description && date) {
-            const newInvoice = { 
-                id: Date.now(), 
-                amount: parseFloat(amount).toFixed(2), 
-                description, 
-                date, 
-                status 
-            };
-            addInvoiceToStorage(newInvoice);
-            Telegram.WebApp.showAlert('Invoice created successfully!');
-            renderMainPage();
-        } else {
-            Telegram.WebApp.showAlert('Please fill in all fields.');
-        }
-    }
-
-    function viewAllInvoices() {
-        const invoices = getInvoices();
-        const appContainer = document.getElementById('app');
-        appContainer.innerHTML = `
-            <div class="container">
-                <h2>All Invoices</h2>
-                <div class="invoice-list">
-                    ${renderInvoices(invoices)}
-                </div>
-            </div>
-        `;
-
-        Telegram.WebApp.BackButton.show();
-        Telegram.WebApp.BackButton.onClick(renderMainPage);
-        hideMainButton();
-    }
-
-    function viewInvoice(id) {
-        const invoices = getInvoices();
-        const invoice = invoices.find(inv => inv.id === id);
-        
-        if (!invoice) {
-            Telegram.WebApp.showAlert('Invoice not found.');
-            return;
-        }
-
-        const appContainer = document.getElementById('app');
-        appContainer.innerHTML = `
-            <div class="container">
-                <h2>Invoice #${invoice.id}</h2>
-                <p>Amount: $${parseFloat(invoice.amount).toFixed(2)}</p>
-                <p>Description: ${invoice.description}</p>
-                <p>Date: ${invoice.date}</p>
-                <p>Status: ${invoice.status}</p>
-                <button class="button" onclick="editInvoice(${invoice.id})">Edit</button>
-                <button class="button" onclick="deleteInvoice(${invoice.id})">Delete</button>
-                <button class="button" onclick="downloadPDF(${invoice.id})">Download PDF</button>
-            </div>
-        `;
-
-        Telegram.WebApp.BackButton.show();
-        Telegram.WebApp.BackButton.onClick(renderMainPage);
-        hideMainButton();
-    }
-
-    function openSettings() {
-        renderSettingsPage('business'); // Default to business tab
-    }
-
-    function renderSettingsPage(activeTab = 'business') {
-        const appContainer = document.getElementById('app');
-        appContainer.innerHTML = `
-            <div class="container settings-page">
-                <div class="tabs">
-                    <button class="tab-button ${activeTab === 'business' ? 'active' : ''}" onclick="renderSettingsPage('business')">Business</button>
-                    <button class="tab-button ${activeTab === 'general' ? 'active' : ''}" onclick="renderSettingsPage('general')">General</button>
-                </div>
-                <div class="tab-content">
-                    ${activeTab === 'business' ? renderBusinessSettings() : renderGeneralSettings()}
-                </div>
-            </div>
-        `;
-
-        Telegram.WebApp.BackButton.show();
-        Telegram.WebApp.BackButton.onClick(renderMainPage);
-        hideMainButton();
-    }
-
-    function renderBusinessSettings() {
-        return `
-            <div class="settings-section">
-                <h3>Business Information</h3>
-                <p>Business Name: Your Business Name</p>
-                <p>Country: Your Country</p>
-                <p>Default Currency: USD</p>
-                <button class="button" onclick="editBusinessInfo()">Edit business info</button>
-            </div>
-            <div class="settings-section">
-                <h3>Subscription</h3>
-                <p class="placeholder">Premium placeholder</p>
-            </div>
-            <div class="settings-section">
-                <h3>Sales</h3>
-                <ul>
-                    <li><a href="#" onclick="openCustomers()">Customers</a></li>
-                    <li><a href="#" onclick="openProductsServices()">Products and services</a></li>
-                    <li><a href="#" onclick="openSalesTaxes()">Sales taxes</a></li>
-                </ul>
-            </div>
-        `;
-    }
-
-    function renderGeneralSettings() {
-        return `
-            <div class="settings-section">
-                <h3>Language</h3>
-                <select id="language-select">
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                    <option value="fr">Français</option>
-                </select>
-            </div>
-            <div class="settings-section">
-                <h3>Default Currency</h3>
-                <select id="currency-select">
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                    <option value="GBP">GBP</option>
-                </select>
-            </div>
-            <div class="settings-section">
-                <h3>Support</h3>
-                <button class="button" onclick="contactSupport()">Contact Support</button>
-            </div>
-        `;
-    }
-
-    function getInvoices() {
-        const invoices = localStorage.getItem('invoices');
-        return invoices ? JSON.parse(invoices) : [];
-    }
-
-    function addInvoiceToStorage(invoice) {
-        const invoices = getInvoices();
-        invoices.push(invoice);
-        localStorage.setItem('invoices', JSON.stringify(invoices));
-    }
-
-    function setupMainButton(text, onClick) {
-        Telegram.WebApp.MainButton.setText(text);
-        Telegram.WebApp.MainButton.onClick(onClick);
-        Telegram.WebApp.MainButton.show();
-    }
-
-    function hideMainButton() {
-        Telegram.WebApp.MainButton.hide();
-    }
-
-    // Initial render
+    user = Telegram.WebApp.initDataUnsafe.user;
+    queryId = Telegram.WebApp.initDataUnsafe.query_id;
     renderMainPage();
 }
 
-// Placeholder functions for future implementation
+function renderMainPage() {
+    const invoices = getInvoices();
+    const totalIncome = invoices.reduce((sum, invoice) => sum + parseFloat(invoice.amount), 0);
+
+    const appContainer = document.getElementById('app');
+    appContainer.innerHTML = `
+        <div class="container">
+            <div class="header">
+                <h1 class="app-title">Invoice Manager</h1>
+                <button class="settings-button" id="settingsButton">⚙️</button>
+            </div>
+            <p class="user-name">Welcome, ${user.first_name}</p>
+            <div class="total-income">
+                <h2>Total Income</h2>
+                <div class="amount">$${totalIncome.toFixed(2)}</div>
+            </div>
+            ${renderInvoiceList(invoices.slice(-3))}
+            <button class="button view-all-btn" onclick="viewAllInvoices()">View All</button>
+        </div>
+    `;
+
+    document.getElementById('settingsButton').addEventListener('click', openSettings);
+    Telegram.WebApp.BackButton.hide();
+    setupMainButton('Create Invoice', createInvoice);
+    initSearch();
+}
+
+function renderInvoiceList(invoices) {
+    return `
+        <div class="recent-invoices-block">
+            <h3>RECENT INVOICES</h3>
+            <div class="recent-invoices ${invoices.length === 0 ? 'empty' : ''}">
+                ${invoices.length === 0 ? `
+                    <div class="empty-state">
+                        <div class="icon">⇄</div>
+                        <p>No recent invoices</p>
+                        <a href="#" onclick="createInvoice(); return false;">Create an Invoice</a>
+                    </div>
+                ` : renderInvoices(invoices)}
+            </div>
+        </div>
+    `;
+}
+
+function renderInvoices(invoices) {
+    return invoices.map(invoice => `
+        <div class="invoice-item" onclick="viewInvoice(${invoice.id})">
+            <span>Invoice #${invoice.id}</span>
+            <span>$${parseFloat(invoice.amount).toFixed(2)}</span>
+            <span>${invoice.status}</span>
+        </div>
+    `).join('');
+}
+
+function createInvoice() {
+    renderCreateInvoicePage();
+}
+
+function renderCreateInvoicePage() {
+    const appContainer = document.getElementById('app');
+    appContainer.innerHTML = `
+        <div class="container">
+            <h2>Create Invoice</h2>
+            <form id="create-invoice-form">
+                <input type="number" id="invoice-amount" name="invoice-amount" placeholder="Amount" required step="0.01">
+                <input type="text" id="invoice-description" name="invoice-description" placeholder="Description" required>
+                <input type="date" id="invoice-date" name="invoice-date" required>
+                <select id="invoice-status" name="invoice-status">
+                    <option value="Draft">Draft</option>
+                    <option value="Sent">Sent</option>
+                    <option value="Paid">Paid</option>
+                </select>
+            </form>
+        </div>
+    `;
+
+    Telegram.WebApp.BackButton.show();
+    Telegram.WebApp.BackButton.onClick(renderMainPage);
+    setupMainButton('Save Invoice', saveInvoice);
+}
+
+function saveInvoice() {
+    try {
+        const form = document.getElementById('create-invoice-form');
+        const formData = new FormData(form);
+        validateForm(formData);
+
+        const newInvoice = {
+            id: Date.now(),
+            amount: parseFloat(formData.get('invoice-amount')).toFixed(2),
+            description: formData.get('invoice-description'),
+            date: formData.get('invoice-date'),
+            status: formData.get('invoice-status')
+        };
+
+        addInvoiceToStorage(newInvoice);
+        Telegram.WebApp.showAlert('Invoice created successfully!');
+        renderMainPage();
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+function viewAllInvoices() {
+    const invoices = getInvoices();
+    const appContainer = document.getElementById('app');
+    appContainer.innerHTML = `
+        <div class="container">
+            <h2>All Invoices</h2>
+            <div class="invoice-list">
+                ${renderInvoices(invoices)}
+            </div>
+        </div>
+    `;
+
+    Telegram.WebApp.BackButton.show();
+    Telegram.WebApp.BackButton.onClick(renderMainPage);
+    hideMainButton();
+}
+
+function viewInvoice(id) {
+    const invoices = getInvoices();
+    const invoice = invoices.find(inv => inv.id === id);
+    
+    if (!invoice) {
+        Telegram.WebApp.showAlert('Invoice not found.');
+        return;
+    }
+
+    const appContainer = document.getElementById('app');
+    appContainer.innerHTML = `
+        <div class="container">
+            <h2>Invoice #${invoice.id}</h2>
+            <p>Amount: $${parseFloat(invoice.amount).toFixed(2)}</p>
+            <p>Description: ${invoice.description}</p>
+            <p>Date: ${invoice.date}</p>
+            <p>Status: ${invoice.status}</p>
+            <button class="button" onclick="editInvoice(${invoice.id})">Edit</button>
+            <button class="button" onclick="deleteInvoice(${invoice.id})">Delete</button>
+            <button class="button" onclick="downloadPDF(${invoice.id})">Download PDF</button>
+        </div>
+    `;
+
+    Telegram.WebApp.BackButton.show();
+    Telegram.WebApp.BackButton.onClick(renderMainPage);
+    hideMainButton();
+}
+
+function openSettings() {
+    renderSettingsPage('business');
+}
+
+function renderSettingsPage(activeTab = 'business') {
+    const appContainer = document.getElementById('app');
+    appContainer.innerHTML = `
+        <div class="container settings-page">
+            <div class="tabs">
+                <button class="tab-button ${activeTab === 'business' ? 'active' : ''}" onclick="renderSettingsPage('business')">Business</button>
+                <button class="tab-button ${activeTab === 'general' ? 'active' : ''}" onclick="renderSettingsPage('general')">General</button>
+            </div>
+            <div class="tab-content">
+                ${activeTab === 'business' ? renderBusinessSettings() : renderGeneralSettings()}
+            </div>
+        </div>
+    `;
+
+    Telegram.WebApp.BackButton.show();
+    Telegram.WebApp.BackButton.onClick(renderMainPage);
+    hideMainButton();
+}
+
+function renderBusinessSettings() {
+    return `
+        <div class="settings-section">
+            <h3>Business Information</h3>
+            <p>Business Name: Your Business Name</p>
+            <p>Country: Your Country</p>
+            <p>Default Currency: USD</p>
+            <button class="button" onclick="editBusinessInfo()">Edit business info</button>
+        </div>
+        <div class="settings-section">
+            <h3>Subscription</h3>
+            <p class="placeholder">Premium placeholder</p>
+        </div>
+        <div class="settings-section">
+            <h3>Sales</h3>
+            <ul>
+                <li><a href="#" onclick="openCustomers()">Customers</a></li>
+                <li><a href="#" onclick="openProductsServices()">Products and services</a></li>
+                <li><a href="#" onclick="openSalesTaxes()">Sales taxes</a></li>
+            </ul>
+        </div>
+    `;
+}
+
+function renderGeneralSettings() {
+    return `
+        <div class="settings-section">
+            <h3>Language</h3>
+            <select id="language-select">
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+            </select>
+        </div>
+        <div class="settings-section">
+            <h3>Default Currency</h3>
+            <select id="currency-select">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+            </select>
+        </div>
+        <div class="settings-section">
+            <h3>Support</h3>
+            <button class="button" onclick="contactSupport()">Contact Support</button>
+        </div>
+    `;
+}
+
+function getInvoices() {
+    const invoices = localStorage.getItem('invoices');
+    return invoices ? JSON.parse(invoices) : [];
+}
+
+function addInvoiceToStorage(invoice) {
+    const invoices = getInvoices();
+    invoices.push(invoice);
+    localStorage.setItem('invoices', JSON.stringify(invoices));
+}
+
+function setupMainButton(text, onClick) {
+    Telegram.WebApp.MainButton.setText(text);
+    Telegram.WebApp.MainButton.onClick(onClick);
+    Telegram.WebApp.MainButton.show();
+}
+
+function hideMainButton() {
+    Telegram.WebApp.MainButton.hide();
+}
+
 function editInvoice(id) {
     console.log(`Edit invoice ${id}`);
-    // Implement edit functionality
 }
 
 function deleteInvoice(id) {
-    console.log(`Delete invoice ${id}`);
-    // Implement delete functionality
+    confirmAction('Are you sure you want to delete this invoice?', () => {
+        console.log(`Deleting invoice ${id}`);
+        renderMainPage();
+    });
 }
 
 function downloadPDF(id) {
     console.log(`Download PDF for invoice ${id}`);
-    // Implement PDF download functionality
 }
 
 function editBusinessInfo() {
     console.log("Edit business info");
-    // Implement edit business info functionality
 }
 
 function openCustomers() {
     console.log("Open customers");
-    // Implement open customers functionality
 }
 
 function openProductsServices() {
     console.log("Open products and services");
-    // Implement open products and services functionality
 }
 
 function openSalesTaxes() {
     console.log("Open sales taxes");
-    // Implement open sales taxes functionality
 }
 
 function contactSupport() {
     console.log("Contact support");
-    // Implement contact support functionality
 }
 
-// Make sure these functions are available in the global scope
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+}
+
+function updateLanguage(language) {
+    console.log(`Updating language to ${language}`);
+}
+
+function updateCurrency(currency) {
+    console.log(`Updating currency to ${currency}`);
+}
+
+document.addEventListener('change', function(event) {
+    if (event.target.id === 'language-select') {
+        updateLanguage(event.target.value);
+    } else if (event.target.id === 'currency-select') {
+        updateCurrency(event.target.value);
+    }
+});
+
+function handleError(error) {
+    console.error('An error occurred:', error);
+    Telegram.WebApp.showAlert(`An error occurred: ${error.message}`);
+}
+
+function showLoading() {
+    const loadingElement = document.createElement('div');
+    loadingElement.id = 'loading';
+    loadingElement.textContent = 'Loading...';
+    document.body.appendChild(loadingElement);
+}
+
+function hideLoading() {
+    const loadingElement = document.getElementById('loading');
+    if (loadingElement) {
+        loadingElement.remove();
+    }
+}
+
+function confirmAction(message, onConfirm) {
+    Telegram.WebApp.showConfirm(message, (confirmed) => {
+        if (confirmed) {
+            onConfirm();
+        }
+    });
+}
+
+function validateForm(formData) {
+    for (let [key, value] of formData.entries()) {
+        if (!value) {
+            throw new Error(`${key} is required`);
+        }
+    }
+}
+
+function searchInvoices(query) {
+    const invoices = getInvoices();
+    return invoices.filter(invoice => 
+        invoice.description.toLowerCase().includes(query.toLowerCase()) ||
+        invoice.id.toString().includes(query)
+    );
+}
+
+function renderSearchResults(results) {
+    const appContainer = document.getElementById('app');
+    appContainer.innerHTML = `
+        <div class="container">
+            <h2>Search Results</h2>
+            <div class="invoice-list">
+                ${results.length > 0 ? renderInvoices(results) : '<p>No results found</p>'}
+            </div>
+            <button class="button" onclick="renderMainPage()">Back to Main</button>
+        </div>
+    `;
+}
+
+function initSearch() {
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Search invoices...';
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value;
+        if (query.length >= 3) {
+            const results = searchInvoices(query);
+            renderSearchResults(results);
+        } else if (query.length === 0) {
+            renderMainPage();
+        }
+    });
+    document.querySelector('.header').appendChild(searchInput);
+}
+
 window.openSettings = openSettings;
 window.viewAllInvoices = viewAllInvoices;
 window.createInvoice = createInvoice;
@@ -332,3 +416,5 @@ window.openProductsServices = openProductsServices;
 window.openSalesTaxes = openSalesTaxes;
 window.contactSupport = contactSupport;
 window.renderSettingsPage = renderSettingsPage;
+
+initApp();
