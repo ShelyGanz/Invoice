@@ -267,12 +267,10 @@ function editBusinessInfo() {
                 <label for="business-name">Business Name</label>
                 <input type="text" id="business-name" name="business-name" maxlength="50" value="${businessInfo.name}" required>
                 
-                <h3>Additional Info</h3>
+                <h3>Additional Info (optional)</h3>
                 
                 <button type="button" class="button" onclick="editAddress()">Address</button>
                 <button type="button" class="button" onclick="editContact()">Contact</button>
-                
-                <button type="submit" class="button">Save Business Info</button>
             </form>
         </div>
     `;
@@ -280,18 +278,22 @@ function editBusinessInfo() {
     Telegram.WebApp.BackButton.show();
     Telegram.WebApp.BackButton.onClick(() => renderSettingsPage('business'));
 
-    document.getElementById('edit-business-info-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const updatedInfo = {
-            name: formData.get('business-name'),
-            address: businessInfo.address,
-            contact: businessInfo.contact
-        };
-        saveBusinessInfo(updatedInfo);
-        Telegram.WebApp.showAlert('Business information updated successfully!');
-        renderSettingsPage('business');
-    });
+    // Set up the MainButton for saving
+    setupMainButton('Save', saveBusinessInfoHandler);
+}
+
+function saveBusinessInfoHandler() {
+    const form = document.getElementById('edit-business-info-form');
+    const formData = new FormData(form);
+    const businessInfo = getBusinessInfo();
+    const updatedInfo = {
+        name: formData.get('business-name'),
+        address: businessInfo.address,
+        contact: businessInfo.contact
+    };
+    saveBusinessInfo(updatedInfo);
+    Telegram.WebApp.showAlert('Business information updated successfully!');
+    renderSettingsPage('business');
 }
 
 function editAddress() {
@@ -314,9 +316,13 @@ function editAddress() {
     Telegram.WebApp.BackButton.show();
     Telegram.WebApp.BackButton.onClick(editBusinessInfo);
 
-    document.getElementById('edit-address-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
+    // Set up the MainButton for saving
+    setupMainButton('Save', saveAddressHandler);
+}
+
+function saveAddressHandler() {
+        const form = document.getElementById('edit-address-form');
+        const formData = new FormData(form);
         const updatedAddress = {
             street: formData.get('street'),
             city: formData.get('city'),
@@ -329,7 +335,6 @@ function editAddress() {
         saveBusinessInfo(businessInfo);
         Telegram.WebApp.showAlert('Address updated successfully!');
         editBusinessInfo();
-    });
 }
 
 function editContact() {
@@ -350,9 +355,13 @@ function editContact() {
     Telegram.WebApp.BackButton.show();
     Telegram.WebApp.BackButton.onClick(editBusinessInfo);
 
-    document.getElementById('edit-contact-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
+    // Set up the MainButton for saving
+    setupMainButton('Save', saveContactHandler);
+}
+
+function saveContactHandler() {
+        const form =document.getElementById('edit-contact-form')
+        const formData = new FormData(form);
         const updatedContact = {
             email: formData.get('email'),
             phone: formData.get('phone'),
@@ -363,7 +372,6 @@ function editContact() {
         saveBusinessInfo(businessInfo);
         Telegram.WebApp.showAlert('Contact information updated successfully!');
         editBusinessInfo();
-    });
 }
 
 function getBusinessInfo() {
