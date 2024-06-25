@@ -213,9 +213,7 @@ function renderBusinessSettings() {
         <div class="settings-section">
             <h3>Business Information</h3>
             <p>Business Name: ${businessInfo.name}</p>
-            <h4>Additional Info</h4>
-            <p>Address: ${businessInfo.address ? '${businessInfo.address.country}' : 'Not provided'}</p>
-            <p>Contact: ${businessInfo.contact ? 'Email: ${businessInfo.contact.email}' : 'Not provided'}</p>
+            <p>${businessInfo.address.country || 'Country not set'}</p>
             <button class="button" onclick="editBusinessInfo()">Edit business info</button>
         </div>
         <div class="settings-section">
