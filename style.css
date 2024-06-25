@@ -248,6 +248,31 @@ input::placeholder {
     margin-bottom: 20px;
 }
 
+.recent-invoices-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.recent-invoices-header h3 {
+    margin: 0;
+}
+
+.text-button {
+    background: none;
+    border: none;
+    color: var(--tg-theme-link-color, #3390ec);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.text-button:hover {
+    opacity: 0.8;
+}
+
 /* Animations */
 @keyframes fadeIn {
     from { opacity: 0; }

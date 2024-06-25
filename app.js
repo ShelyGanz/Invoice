@@ -53,7 +53,6 @@ function renderMainPage() {
                 <div class="amount">$${totalIncome.toFixed(2)}</div>
             </div>
             ${renderInvoiceList(invoices.slice(-3))}
-            <button class="button view-all-btn" onclick="viewAllInvoices()">View All</button>
         </div>
     `;
 
@@ -65,17 +64,21 @@ function renderMainPage() {
 }
 
 function renderInvoiceList(invoices) {
+    const hasInvoices = invoices.length > 0;
     return `
         <div class="recent-invoices-block">
-            <h3>RECENT INVOICES</h3>
-            <div class="recent-invoices ${invoices.length === 0 ? 'empty' : ''}">
-                ${invoices.length === 0 ? `
+            <div class="recent-invoices-header">
+                <h3>RECENT INVOICES</h3>
+                ${hasInvoices ? `<button class="text-button" onclick="viewAllInvoices()">View All</button>` : ''}
+            </div>
+            <div class="recent-invoices ${hasInvoices ? '' : 'empty'}">
+                ${hasInvoices ? renderInvoices(invoices) : `
                     <div class="empty-state">
                         <div class="icon">⇄</div>
                         <p>No recent invoices</p>
                         <a href="#" onclick="createInvoice(); return false;">Create an Invoice</a>
                     </div>
-                ` : renderInvoices(invoices)}
+                `}
             </div>
         </div>
     `;
