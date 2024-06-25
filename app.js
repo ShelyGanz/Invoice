@@ -213,9 +213,9 @@ function renderBusinessSettings() {
         <div class="settings-section">
             <h3>Business Information</h3>
             <p>Business Name: ${businessInfo.name}</p>
-            <p>Additional Info: ${businessInfo.additionalInfo || 'Not provided'}</p>
-            <p>Address: ${businessInfo.address ? 'Provided' : 'Not provided'}</p>
-            <p>Contact: ${businessInfo.contact ? 'Provided' : 'Not provided'}</p>
+            <h4>Additional Info</h4>
+            <p>Address: ${businessInfo.address ? '${businessInfo.address.country}' : 'Not provided'}</p>
+            <p>Contact: ${businessInfo.contact ? 'Email: ${businessInfo.contact.email}' : 'Not provided'}</p>
             <button class="button" onclick="editBusinessInfo()">Edit business info</button>
         </div>
         <div class="settings-section">
@@ -269,8 +269,7 @@ function editBusinessInfo() {
                 <label for="business-name">Business Name</label>
                 <input type="text" id="business-name" name="business-name" maxlength="50" value="${businessInfo.name}" required>
                 
-                <label for="additional-info">Additional Info (optional)</label>
-                <textarea id="additional-info" name="additional-info">${businessInfo.additionalInfo || ''}</textarea>
+                <h3>Additional Info</h3>
                 
                 <button type="button" class="button" onclick="editAddress()">Address</button>
                 <button type="button" class="button" onclick="editContact()">Contact</button>
@@ -288,7 +287,6 @@ function editBusinessInfo() {
         const formData = new FormData(this);
         const updatedInfo = {
             name: formData.get('business-name'),
-            additionalInfo: formData.get('additional-info'),
             address: businessInfo.address,
             contact: businessInfo.contact
         };
@@ -374,7 +372,6 @@ function getBusinessInfo() {
     const info = localStorage.getItem('businessInfo');
     return info ? JSON.parse(info) : {
         name: user.first_name, // Default to user's first name from Telegram data
-        additionalInfo: '',
         address: null,
         contact: null
     };
