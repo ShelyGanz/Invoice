@@ -38,27 +38,65 @@ body {
     font-weight: bold;
 }
 
-h3 {
-    font-size: 18px;
-    margin-bottom: 15px;
-}
-
-.invoice-list {
+.recent-invoices-block {
     margin-bottom: 20px;
 }
 
-.invoice-item {
-    background-color: var(--tg-theme-secondary-bg-color, #2C2C2E);
-    border-radius: 8px;
-    padding: 15px;
+.recent-invoices-block h3 {
+    font-size: 14px;
+    color: var(--tg-theme-hint-color, #8E8E93);
     margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.recent-invoices {
+    background-color: var(--tg-theme-secondary-bg-color, #2C2C2E);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.recent-invoices.empty {
+    padding: 30px 20px;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.empty-state .icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: var(--tg-theme-hint-color, #8E8E93);
+}
+
+.empty-state p {
+    margin-bottom: 10px;
+    color: var(--tg-theme-hint-color, #8E8E93);
+}
+
+.empty-state a {
+    color: var(--tg-theme-link-color, #3390ec);
+    text-decoration: none;
+}
+
+.invoice-item {
+    padding: 15px;
+    border-bottom: 1px solid var(--tg-theme-bg-color, #1C1C1E);
     display: flex;
     justify-content: space-between;
     cursor: pointer;
 }
 
+.invoice-item:last-child {
+    border-bottom: none;
+}
+
 .invoice-item:hover {
-    opacity: 0.8;
+    background-color: var(--tg-theme-bg-color, #1C1C1E);
 }
 
 .button {
@@ -71,36 +109,15 @@ h3 {
     cursor: pointer;
     width: 100%;
     margin-top: 10px;
+    transition: opacity 0.3s ease;
 }
 
-.view-all-btn {
+.button:active {
+    opacity: 0.7;
+}
+
+.view-all-btn, .create-invoice-btn {
     background-color: var(--tg-theme-button-color, #3390ec);
-}
-
-.create-invoice-btn {
-    background-color: var(--tg-theme-button-color, #3390ec);
-}
-
-.recent-invoices {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-}
-
-.recent-invoices.empty .icon {
-    font-size: 24px;
-    margin-bottom: 10px;
-}
-
-.recent-invoices.empty p {
-    margin-bottom: 10px;
-    color: #8E8E93;
-}
-
-.recent-invoices.empty a {
-    color: #3390ec;
-    text-decoration: none;
 }
 
 /* Form styles */
@@ -147,6 +164,49 @@ input::placeholder {
     margin-bottom: 20px;
 }
 
+/* Invoice details page */
+.invoice-details h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.invoice-details p {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.invoice-details .label {
+    color: var(--tg-theme-hint-color, #8E8E93);
+    margin-right: 5px;
+}
+
+/* Success and error messages */
+.success-message {
+    background-color: var(--tg-theme-secondary-bg-color, #2C2C2E);
+    border-left: 4px solid #4CAF50;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.error-message {
+    background-color: var(--tg-theme-secondary-bg-color, #2C2C2E);
+    border-left: 4px solid #F44336;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.container {
+    animation: fadeIn 0.3s ease;
+}
+
 /* Responsive design */
 @media (max-width: 600px) {
     .container {
@@ -171,82 +231,15 @@ input::placeholder {
     }
 }
 
-/* Additional styles for better UI */
-.invoice-item {
-    transition: background-color 0.3s ease;
-}
-
-.invoice-item:active {
-    background-color: var(--tg-theme-active-bg-color, #3A3A3C);
-}
-
-.button {
-    transition: opacity 0.3s ease;
-}
-
-.button:active {
-    opacity: 0.7;
-}
-
-/* Styles for invoice details page */
-.invoice-details h2 {
-    font-size: 20px;
-    margin-bottom: 15px;
-}
-
-.invoice-details p {
-    margin-bottom: 10px;
-    font-size: 16px;
-}
-
-.invoice-details .label {
-    color: var(--tg-theme-hint-color, #8E8E93);
-    margin-right: 5px;
-}
-
-/* Styles for "No invoices yet" message */
-.no-invoices {
+/* Utility classes */
+.text-center {
     text-align: center;
-    color: var(--tg-theme-hint-color, #8E8E93);
-    font-style: italic;
-    margin: 20px 0;
 }
 
-/* Improve form layout */
-form label {
-    color: var(--tg-theme-hint-color, #8E8E93);
-    margin-bottom: 5px;
-    font-size: 14px;
+.mt-20 {
+    margin-top: 20px;
 }
 
-form input, form select {
-    margin-bottom: 15px;
-}
-
-/* Add some animation for smoother transitions */
-.container {
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* Style for success messages */
-.success-message {
-    background-color: var(--tg-theme-secondary-bg-color, #2C2C2E);
-    border-left: 4px solid #4CAF50;
-    padding: 10px;
+.mb-20 {
     margin-bottom: 20px;
-    border-radius: 4px;
-}
-
-/* Style for error messages */
-.error-message {
-    background-color: var(--tg-theme-secondary-bg-color, #2C2C2E);
-    border-left: 4px solid #F44336;
-    padding: 10px;
-    margin-bottom: 20px;
-    border-radius: 4px;
 }

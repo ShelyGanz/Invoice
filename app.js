@@ -44,12 +44,8 @@ function initApp() {
                     <h2>Total Income</h2>
                     <div class="amount">$${totalIncome.toFixed(2)}</div>
                 </div>
-                <h3>Latest Invoices</h3>
-                <div class="invoice-list">
-                    ${renderInvoiceList(invoices.slice(-3))}
-                </div>
+                ${renderInvoiceList(invoices.slice(-3))}
                 <button class="button view-all-btn" onclick="viewAllInvoices()">View All</button>
-                <button class="button create-invoice-btn" onclick="createInvoice()">Create Invoice</button>
             </div>
         `;
 
@@ -58,15 +54,23 @@ function initApp() {
     }
 
     function renderInvoiceList(invoices) {
-        if (invoices.length === 0) {
-            return `
-                <div class="recent-invoices empty">
-                    <div class="icon">↻</div>
-                    <p>No recent invoices</p>
-                    <a href="#" onclick="createInvoice()">Create an Invoice</a>
+        return `
+            <div class="recent-invoices-block">
+                <h3>RECENT INVOICES</h3>
+                <div class="recent-invoices ${invoices.length === 0 ? 'empty' : ''}">
+                    ${invoices.length === 0 ? `
+                        <div class="empty-state">
+                            <div class="icon">⇄</div>
+                            <p>No recent invoices</p>
+                            <a href="#" onclick="createInvoice(); return false;">Create an Invoice</a>
+                        </div>
+                    ` : renderInvoices(invoices)}
                 </div>
-            `;
-        }
+            </div>
+        `;
+    }
+
+    function renderInvoices(invoices) {
         return invoices.map(invoice => `
             <div class="invoice-item" onclick="viewInvoice(${invoice.id})">
                 <span>Invoice #${invoice.id}</span>
@@ -132,7 +136,7 @@ function initApp() {
             <div class="container">
                 <h2>All Invoices</h2>
                 <div class="invoice-list">
-                    ${renderInvoiceList(invoices)}
+                    ${renderInvoices(invoices)}
                 </div>
             </div>
         `;
