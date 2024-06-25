@@ -59,7 +59,13 @@ function initApp() {
 
     function renderInvoiceList(invoices) {
         if (invoices.length === 0) {
-            return '<p>No invoices yet.</p>';
+            return `
+                <div class="recent-invoices empty">
+                    <div class="icon">↻</div>
+                    <p>No recent invoices</p>
+                    <a href="#" onclick="createInvoice()">Create an Invoice</a>
+                </div>
+            `;
         }
         return invoices.map(invoice => `
             <div class="invoice-item" onclick="viewInvoice(${invoice.id})">
